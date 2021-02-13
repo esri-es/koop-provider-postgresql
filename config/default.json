@@ -1,3 +1,7 @@
 {
-  "koop-provider-postgresql": {}
+    "user": "vagrant",
+    "host": "127.0.0.1",
+    "database": "devsummit2021",
+    "password": "vagrant",
+    "port": 6543
 }

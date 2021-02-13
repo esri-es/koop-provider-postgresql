@@ -1,13 +1,8 @@
 function Model (koop) {}
-const { Pool } = require('pg')
+const { Pool } = require('pg');
+const config = require('config')
 
-const pool = new Pool({
-  user: 'vagrant',
-  host: '127.0.0.1',
-  database: 'devsummit2021',
-  password: 'vagrant',
-  port: 6543,
-})
+const pool = new Pool(config)
 
 const atob = require('atob');
 
