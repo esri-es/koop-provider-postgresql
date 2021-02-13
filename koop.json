@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "koopCompatibility": ">=3",
+  "npmClient": "npm",
+  "type": "provider"
+}

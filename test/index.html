@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Intro to FeatureLayer | Sample | ArcGIS API for JavaScript 4.18</title>
+
+  <link rel="stylesheet" href="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/css/calcite-web.min.css">
+  <script src="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/js/calcite-web.min.js"></script>
+
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css" />
+  <script src="https://js.arcgis.com/4.18/"></script>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    #sqlStatement{
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 20%;
+      padding: 1rem;
+      background-color: #ffffffc2;
+    }
+    #sqlStatement span{
+        text-align: center;
+        display: block;
+        margin-bottom: 1rem;
+    }
+    #sqlStatement textarea{
+      padding: 1rem;
+      height: 40vh;
+
+    }
+
+    #sqlStatement textarea{
+
+
+    }
+  </style>
+
+  <script type="module">
+
+    import ArcGISMap from "https://js.arcgis.com/4.18/@arcgis/core/Map.js";
+    import MapView from "https://js.arcgis.com/4.18/@arcgis/core/views/MapView.js";
+    import FeatureLayer from "https://js.arcgis.com/4.18/@arcgis/core/layers/FeatureLayer.js";
+
+    const map = new ArcGISMap({
+      basemap: "satellite"
+    });
+
+    const view = new MapView({
+      container: "viewDiv",
+      map: map
+    });
+
+    const gotoExtent = async function(featureLayer){
+      const getExtent = featureLayer
+      .queryExtent()
+      .then(response => response.extent);
+
+      const mapReady = view.when();
+
+      Promise.all([getExtent, mapReady]).then(values =>{
+        // console.log("Extent = ", values[0].toJSON());
+        view.goTo(values[0]).catch(function (error) {
+          if (error.name != "AbortError") {
+            console.error(error);
+          }
+        });
+      })
+    }
+
+    /******************************************
+    * Loading the a default layer (PostgreSQL table parks:
+    * SELECT St_asgeojson(St_transform(parks.geometry, 4326)), parks.* FROM parks;
+    ******************************************/
+
+    const featureLayer = new FeatureLayer({
+      id: 'pgLayer',
+      url: 'http://localhost:8080/koop-provider-postgresql/U0VMRUNUIFN0X2FzZ2VvanNvbihTdF90cmFuc2Zvcm0ocGFya3MuZ2VvbWV0cnksIDQzMjYpKSwKICAgIHBhcmtzLioKRlJPTSAgIAogICAgcGFya3MKOwo=/FeatureServer/0'///query?f=geojson
+    });
+
+    map.add(featureLayer);
+    gotoExtent(featureLayer);
+
+    /******************************************
+    * USER INTERFACE
+    * It will allow to dynamically convert SQL statements to feature layers using Koop
+    ******************************************/
+    function processForm(e) {
+      if (e.preventDefault) e.preventDefault();
+
+      const newStatement = document.getElementById("statement").value;
+      let encodedStatement = btoa(newStatement);
+      encodedStatement = encodedStatement.replaceAll('/','_');
+
+      const layerURL = `http://localhost:8080/koop-provider-postgresql/${encodedStatement}/FeatureServer/0`;
+      //console.log(`${layerURL}/query?f=geojson`)
+
+      fetch(layerURL)
+        .then(response => response.json())
+        .then(data => {
+            const el = document.getElementById('error-message');
+
+            if(data.error){
+                el.innerText = data.error;
+                if(!el.classList.contains('is-active')){
+                    el.classList.add('is-active');
+                }
+            }else{
+                el.classList.remove('is-active');
+                map.remove(map.layers.find(l => l.id === 'pgLayer'))
+
+                const featureLayer = new FeatureLayer({
+                    id: 'pgLayer',
+                    url: layerURL
+                });
+
+
+                map.add(featureLayer);
+                gotoExtent(featureLayer);
+
+            }
+        });
+      return false;
+    }
+
+    var form = document.getElementById('sqlStatement');
+    if (form.attachEvent) {
+      form.attachEvent("submit", processForm);
+    } else {
+      form.addEventListener("submit", processForm);
+    }
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+  <div id="sqlStatement">
+    <form>
+      <div>
+        <label>
+            <span>
+                <strong>
+                    SQL Statement:
+                </strong>
+            </span>
+
+<textarea id="statement">
+SELECT St_asgeojson(St_transform(parks.geometry, 4326)),
+    parks.*
+FROM
+    parks
+;
+</textarea>
+<div class="input-error-message" id="error-message">
+  </div>
+        </label>
+
+
+      </div>
+      <div>
+        <input type="submit" value="Run query & Replace layer" class="btn btn-fill">
+      </div>
+    </form>
+  </div>
+</body>
+</html>
