@@ -17,6 +17,7 @@ Model.prototype.getData = function (req, callback) {
 
   let statement = req.params.host.replaceAll('_', '/'); // After the URL compression '/' were manually replaced by '_'
   statement = atob(statement);
+  //debugger
 
   const geojson = {
     type: 'FeatureCollection',

@@ -3,11 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>Intro to FeatureLayer | Sample | ArcGIS API for JavaScript 4.18</title>
+  <title>Koop provider PostgreSQL</title>
 
   <link rel="stylesheet" href="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/css/calcite-web.min.css">
   <script src="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/js/calcite-web.min.js"></script>
-
 
   <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css" />
   <script src="https://js.arcgis.com/4.18/"></script>
@@ -21,7 +20,6 @@
       height: 100%;
       width: 100%;
     }
-
     #sqlStatement{
       position: absolute;
       top: 1rem;
@@ -38,11 +36,6 @@
     #sqlStatement textarea{
       padding: 1rem;
       height: 40vh;
-
-    }
-
-    #sqlStatement textarea{
-
 
     }
   </style>
@@ -64,8 +57,8 @@
 
     const gotoExtent = async function(featureLayer){
       const getExtent = featureLayer
-      .queryExtent()
-      .then(response => response.extent);
+        .queryExtent()
+        .then(response => response.extent);
 
       const mapReady = view.when();
 
@@ -124,7 +117,6 @@
                     id: 'pgLayer',
                     url: layerURL
                 });
-
 
                 map.add(featureLayer);
                 gotoExtent(featureLayer);
