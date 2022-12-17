@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  koop-provider-postgresql:
+    container_name: koop-provider-postgresql
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/app/
+      - /usr/src/app/node_modules
+    ports:
+      - "8080:8080"
